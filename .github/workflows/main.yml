@@ -1,4 +1,4 @@
-name: Build Watcho AI Photo Enhancer 4K APK
+name: Build Zeeshan Photos AI APK
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   build:
-    name: Build Pure Offline Multi-Model AI Photo Enhancer 4K APK
+    name: Build Offline Zeeshan Photos AI Debug APK
     runs-on: ubuntu-latest
 
     steps:
@@ -39,7 +39,7 @@ jobs:
           mkdir -p app/src/main/assets/models
 
           echo "================================================="
-          echo " Fetching Models for Watcho AI 4K Pipeline"
+          echo " Fetching Models for Zeeshan Photos AI Pipeline"
           echo "================================================="
 
           curl -L --retry 3 -s -o app/src/main/assets/models/nafnet_denoise_deblur.tflite "https://huggingface.co/litert-community/NAFNet-SIDD-width32-LiteRT/resolve/main/nafnet_sidd_width32_fp16.tflite"
@@ -48,7 +48,7 @@ jobs:
           curl -L --retry 3 -s -o app/src/main/assets/models/skin_detail_preserver.tflite "https://huggingface.co/litert-community/Real-ESRGAN-LiteRT/resolve/main/real_esrgan_fp16.tflite"
           curl -L --retry 3 -s -o app/src/main/assets/models/zerodce_hdr_lighting.tflite "https://huggingface.co/mlboydaisuke/zero-dce-litert/resolve/main/zero-dce_fp16.tflite"
 
-          echo "All Models Downloaded:"
+          echo "All Models Downloaded Successfully:"
           ls -lh app/src/main/assets/models/
 
       # =========================================================================
@@ -57,9 +57,10 @@ jobs:
       - name: Generate Project Base & Dependencies
         run: |
           set -euo pipefail
-          mkdir -p app/src/main/java/com/watcho/aiphoto
+          mkdir -p app/src/main/java/com/zeeshan/photosai
           mkdir -p app/src/main/res/values
           mkdir -p app/src/main/res/drawable
+          mkdir -p app/src/main/res/mipmap-anydpi-v26
           mkdir -p app/src/main/res/layout
 
           cat > gradle.properties <<'EOF'
@@ -75,7 +76,7 @@ jobs:
               repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
               repositories { google(); mavenCentral() }
           }
-          rootProject.name = "WatchoAIPhotoEnhancer"
+          rootProject.name = "ZeeshanPhotosAI"
           include(":app")
           EOF
 
@@ -92,16 +93,19 @@ jobs:
               id "org.jetbrains.kotlin.android"
           }
           android {
-              namespace "com.watcho.aiphoto"
+              namespace "com.zeeshan.photosai"
               compileSdk 34
               defaultConfig {
-                  applicationId "com.watcho.aiphoto"
+                  applicationId "com.zeeshan.photosai"
                   minSdk 24
                   targetSdk 34
-                  versionCode 3
-                  versionName "3.0.WATCHO-AI"
+                  versionCode 1
+                  versionName "1.0.ZEESHAN-AI"
               }
               buildTypes { 
+                  debug {
+                      minifyEnabled false
+                  }
                   release { 
                       minifyEnabled false 
                   } 
@@ -134,7 +138,57 @@ jobs:
           EOF
 
       # =========================================================================
-      # STEP 3: Layouts & User Interface Resources
+      # STEP 3: Create Sky-Blue & Green Leaf App Icon Vector Resources
+      # =========================================================================
+      - name: Generate Custom Sky-Blue Leaf App Icon
+        run: |
+          set -euo pipefail
+
+          # Vector Image Background (Sky Blue Color)
+          cat > app/src/main/res/drawable/ic_launcher_background.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="108dp"
+              android:height="108dp"
+              android:viewportWidth="108"
+              android:viewportHeight="108">
+              <path
+                  android:fillColor="#87CEEB"
+                  android:pathData="M0,0h108v108h-108z"/>
+          </vector>
+          EOF
+
+          # Vector Image Foreground (Green Leaf Photo Strip)
+          cat > app/src/main/res/drawable/ic_launcher_foreground.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="108dp"
+              android:height="108dp"
+              android:viewportWidth="108"
+              android:viewportHeight="108">
+              <!-- Green Leaf Graphic -->
+              <path
+                  android:fillColor="#2ECC71"
+                  android:pathData="M54,22 C32,22 26,42 26,62 C38,62 50,56 54,46 C58,56 70,62 82,62 C82,42 76,22 54,22 Z"/>
+              <!-- Central Stem / Leaf Line -->
+              <path
+                  android:strokeColor="#FFFFFF"
+                  android:strokeWidth="2.5"
+                  android:pathData="M54,26 L54,80"/>
+          </vector>
+          EOF
+
+          # Adaptive Icon Config
+          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@drawable/ic_launcher_background" />
+              <foreground android:drawable="@drawable/ic_launcher_foreground" />
+          </adaptive-icon>
+          EOF
+
+      # =========================================================================
+      # STEP 4: Layouts & User Interface Resources
       # =========================================================================
       - name: Generate Layouts & UI Resources
         run: |
@@ -143,7 +197,7 @@ jobs:
           cat > app/src/main/res/values/strings.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
-              <string name="app_name">Watcho AI Photo Enhancer</string>
+              <string name="app_name">Zeeshan photos Ai</string>
           </resources>
           EOF
 
@@ -161,18 +215,18 @@ jobs:
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_marginTop="10dp"
-                  android:text="Watcho Multi-Model AI 4K"
+                  android:text="Zeeshan photos Ai"
                   android:textColor="#00FFC6"
-                  android:textSize="22sp"
+                  android:textSize="24sp"
                   android:textStyle="bold" />
 
               <TextView
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_marginBottom="12dp"
-                  android:text="5 Mini-AI Network Engine • Seamless Alpha Blend"
+                  android:text="Pure Offline Multi-Model AI Photo Enhancer 4K"
                   android:textColor="#A0A0B0"
-                  android:textSize="11sp" />
+                  android:textSize="12sp" />
 
               <FrameLayout
                   android:layout_width="match_parent"
@@ -210,7 +264,7 @@ jobs:
                           android:layout_width="wrap_content"
                           android:layout_height="wrap_content"
                           android:layout_marginTop="12dp"
-                          android:text="AI Engine Processing... 0%"
+                          android:text="Zeeshan AI Processing... 0%"
                           android:textColor="#00FFC6"
                           android:textSize="18sp"
                           android:textStyle="bold" />
@@ -251,7 +305,7 @@ jobs:
                       android:layout_height="56dp"
                       android:layout_weight="1"
                       android:backgroundTint="#007AFF"
-                      android:text="Run Watcho AI"
+                      android:text="Enhance Photo"
                       android:textColor="#FFFFFF" />
               </LinearLayout>
 
@@ -261,7 +315,7 @@ jobs:
                   android:layout_height="54dp"
                   android:layout_marginTop="10dp"
                   android:backgroundTint="#34C759"
-                  android:text="Download 4K Ultra Photo"
+                  android:text="Download 4K Photo"
                   android:textColor="#FFFFFF"
                   android:visibility="gone" />
           </LinearLayout>
@@ -274,7 +328,9 @@ jobs:
               <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
               <application
                   android:allowBackup="true"
+                  android:icon="@mipmap/ic_launcher"
                   android:label="@string/app_name"
+                  android:roundIcon="@mipmap/ic_launcher"
                   android:supportsRtl="true"
                   android:theme="@style/Theme.AppCompat.NoActionBar">
                   <activity android:name=".MainActivity" android:exported="true">
@@ -288,12 +344,12 @@ jobs:
           EOF
 
       # =========================================================================
-      # STEP 4: Write Multi-Model Kotlin AI Pipeline Engine
+      # STEP 5: Write Multi-Model Kotlin AI Pipeline Engine
       # =========================================================================
-      - name: Write Watcho AI Engine Source Code
+      - name: Write Zeeshan Photos AI Engine Source Code
         run: |
-          cat > app/src/main/java/com/watcho/aiphoto/MainActivity.kt <<'EOF'
-          package com.watcho.aiphoto
+          cat > app/src/main/java/com/zeeshan/photosai/MainActivity.kt <<'EOF'
+          package com.zeeshan.photosai
 
           import android.content.ContentValues
           import android.graphics.*
@@ -359,7 +415,7 @@ jobs:
 
                   btnUpload.setOnClickListener { pickImageLauncher.launch("image/*") }
                   btnEnhance.setOnClickListener {
-                      selectedBitmap?.let { bmp -> startWatchoAIPipeline(bmp) }
+                      selectedBitmap?.let { bmp -> startZeeshanAIPipeline(bmp) }
                           ?: Toast.makeText(this, "Please select an image first!", Toast.LENGTH_SHORT).show()
                   }
                   btnDownload.setOnClickListener { saveEnhancedBitmapToGallery() }
@@ -387,7 +443,7 @@ jobs:
                   } catch (e: Exception) { null }
               }
 
-              private fun startWatchoAIPipeline(originalBitmap: Bitmap) {
+              private fun startZeeshanAIPipeline(originalBitmap: Bitmap) {
                   loadingLayout.visibility = View.VISIBLE
                   btnDownload.visibility = View.GONE
 
@@ -416,21 +472,21 @@ jobs:
                       updateProgress(98, "[Stage 5] Zero-DCE HDR Light Balancing...")
                       val final4KBitmap = runZeroDCEHDR(blended4KBmp)
 
-                      updateProgress(100, "Watcho AI Pipeline Complete!")
+                      updateProgress(100, "Zeeshan AI Pipeline Complete!")
                       enhancedBitmap = final4KBitmap
 
                       withContext(Dispatchers.Main) {
                           imgPreview.setImageBitmap(enhancedBitmap)
                           loadingLayout.visibility = View.GONE
                           btnDownload.visibility = View.VISIBLE
-                          Toast.makeText(this@MainActivity, "Watcho AI: 4K Render Ready!", Toast.LENGTH_LONG).show()
+                          Toast.makeText(this@MainActivity, "Zeeshan Photos AI: Render Complete!", Toast.LENGTH_LONG).show()
                       }
                   }
               }
 
               private suspend fun updateProgress(pct: Int, modelTitle: String) = withContext(Dispatchers.Main) {
                   progressBar.progress = pct
-                  tvProgressStatus.text = "Watcho Processing... $pct%"
+                  tvProgressStatus.text = "Zeeshan AI Processing... $pct%"
                   tvModelInfo.text = modelTitle
               }
 
@@ -520,17 +576,17 @@ jobs:
 
               private fun saveEnhancedBitmapToGallery() {
                   enhancedBitmap?.let { bmp ->
-                      val filename = "Watcho_AI_4K_${System.currentTimeMillis()}.jpg"
+                      val filename = "Zeeshan_AI_${System.currentTimeMillis()}.jpg"
                       try {
                           val contentValues = ContentValues().apply {
                               put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
                               put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-                              put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/WatchoAI")
+                              put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/ZeeshanPhotosAI")
                           }
                           val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
                           uri?.let { contentResolver.openOutputStream(it) }?.use { out ->
                               bmp.compress(Bitmap.CompressFormat.JPEG, 100, out)
-                              Toast.makeText(this, "Watcho AI Image Saved!", Toast.LENGTH_SHORT).show()
+                              Toast.makeText(this, "Photo Saved to Gallery!", Toast.LENGTH_SHORT).show()
                           }
                       } catch (e: Exception) { e.printStackTrace() }
                   }
@@ -539,15 +595,16 @@ jobs:
           EOF
 
       # =========================================================================
-      # STEP 5: Build Final APK using Gradle System
+      # STEP 6: Build Final APK (Debug Mode - Valid Signed Package)
       # =========================================================================
-      - name: Build Watcho AI APK
+      - name: Build Zeeshan Photos AI Debug APK
         run: |
-          gradle assembleRelease --no-daemon
+          gradle assembleDebug --no-daemon
 
-      - name: Upload Watcho AI Output APK
+      - name: Upload Zeeshan Photos AI Output APK
         uses: actions/upload-artifact@v4
         with:
-          name: Watcho-AI-Multi-Model-4K
-          path: app/build/outputs/apk/release/*.apk
+          name: Zeeshan-Photos-AI-Debug-APK
+          path: app/build/outputs/apk/debug/*.apk
           retention-days: 7
+
